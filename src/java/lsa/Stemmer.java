@@ -1,4 +1,4 @@
-/**
+package lsa; /**
  * Created by Ruslan on 10.03.2017.
  */
 import java.util.regex.Matcher;

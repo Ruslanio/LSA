@@ -1,4 +1,8 @@
+import lsa.LSA;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by Ruslan on 10.03.2017.
@@ -11,7 +15,6 @@ public class MainTest {
         if (stopWords == null)
             System.out.println("null");
 
-        System.out.println(stopWords);
         LSA lsa = new LSA(stopWords);
 
 
@@ -26,6 +29,17 @@ public class MainTest {
         test.add("Полиция Великобритании нашла основателя WikiLeaks, но, не арестовала");
         test.add("В Стокгольме и Осло сегодня состоится вручение Нобелевских премий");
 
-        lsa.doLSA(test);
+        HashMap<String,double[]> result = (HashMap<String, double[]>) lsa.doLSA(test);
+        Set<String> keySet = result.keySet();
+        double[] currentVector = new double[9];
+        for (String key: keySet){
+            currentVector = result.get(key);
+            System.out.print(key + " : ");
+            for (int i = 0; i < 9; i++){
+                System.out.print(currentVector[i] + " ");
+            }
+            System.out.println();
+        }
+
     }
 }

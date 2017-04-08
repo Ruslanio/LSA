@@ -1,3 +1,5 @@
+package lsa;
+
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
@@ -7,8 +9,8 @@ import java.util.*;
  * Created by Ruslan on 10.03.2017.
  */
 public class LSA {
-    private ArrayList<String> dictionary;
     private ArrayList<String> stopWords;
+    private ArrayList<String> significantWords;
     private static final String SYMBOLS = "[^а-яА-Яa-zA-Z\\s]";
     private Stemmer stemmer;
 
@@ -17,7 +19,7 @@ public class LSA {
         this.stopWords = stopWords;
     }
 
-    public void doLSA(ArrayList<String> documents) {
+    public Map<String,double[]> doLSA(ArrayList<String> documents) {
 
         ArrayList data = preProcessing(documents);
         Matrix matrix = prepareMatrix(data);
@@ -27,9 +29,21 @@ public class LSA {
 
         int n = finalVectors.getRowDimension();
         int m = finalVectors.getColumnDimension();
-        printGrid(finalVectors.getArrayCopy(), n, m);
+        finalVectors.print(n, m);
 
+        HashMap<String, double[]> output = new HashMap<>();
+        String currentWord;
 
+        for (int i = 0; i < n; i++) {
+            currentWord = significantWords.get(i);
+            double[] currentVector = new double[m];
+            for (int j = 0; j < m; j++) {
+                currentVector[j] = finalVectors.get(i,j);
+            }
+            output.put(currentWord,currentVector);
+        }
+
+        return output;
     }
 
     private ArrayList preProcessing(ArrayList<String> documents) {
@@ -52,11 +66,11 @@ public class LSA {
             result.add(words);
         }
 
-        for (List<String> words : result) {
-            for (String word : words) {
-                System.out.println(word);
-            }
-        }
+//        for (List<String> significantWords : result) {
+//            for (String word : significantWords) {
+//                System.out.println(word);
+//            }
+//        }
         return result;
     }
 
@@ -78,7 +92,7 @@ public class LSA {
         }
 
         preparedData.entrySet().removeIf(element -> element.getValue().size() == 1);
-
+//        "расшифровка" лямбда-выражения выше
 //        Iterator<Map.Entry<String,ArrayList<Integer>>> iterator = preparedData.entrySet().iterator();
 //        while (iterator.hasNext()){
 //            Map.Entry<String,ArrayList<Integer>> element = iterator.next();
@@ -86,6 +100,7 @@ public class LSA {
 //                iterator.remove();
 //            }
 //        }
+
         int n = preparedData.keySet().size();
         int m = rawData.size();
         double[][] matrixData = new double[n][m];
@@ -93,10 +108,12 @@ public class LSA {
         Set<String> keySet = preparedData.keySet();
         int i = 0;
         ArrayList<Integer> currentValue;
+        significantWords = new ArrayList<>();
 
-        for (String key:keySet) {
+        for (String key : keySet) {
+            significantWords.add(key);
             currentValue = preparedData.get(key);
-            for (int j = 0 ; j < m ; j++) {
+            for (int j = 0; j < m; j++) {
                 if (currentValue.contains(j)) {
                     matrixData[i][j] = 1;
                 } else {
@@ -106,20 +123,10 @@ public class LSA {
             i += 1;
         }
 
-        printGrid(matrixData, n, m);
-
         Matrix resultMatrix = new Matrix(matrixData);
+        resultMatrix.print(n, m);
 
         return resultMatrix;
-    }
-
-    public void printGrid(double[][] a, int n, int m) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                System.out.print(a[i][j] + " ");
-            }
-            System.out.println();
-        }
     }
 
 }
