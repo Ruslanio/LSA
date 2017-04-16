@@ -19,7 +19,7 @@ public class LSA {
         this.stopWords = stopWords;
     }
 
-    public Map<String,double[]> doLSA(ArrayList<String> documents) {
+    public Map<String, double[]> doLSA(ArrayList<String> documents) {
 
         ArrayList data = preProcessing(documents);
         Matrix matrix = prepareMatrix(data);
@@ -29,7 +29,6 @@ public class LSA {
 
         int n = finalVectors.getRowDimension();
         int m = finalVectors.getColumnDimension();
-        finalVectors.print(n, m);
 
         HashMap<String, double[]> output = new HashMap<>();
         String currentWord;
@@ -38,9 +37,9 @@ public class LSA {
             currentWord = significantWords.get(i);
             double[] currentVector = new double[m];
             for (int j = 0; j < m; j++) {
-                currentVector[j] = finalVectors.get(i,j);
+                currentVector[j] = finalVectors.get(i, j);
             }
-            output.put(currentWord,currentVector);
+            output.put(currentWord, currentVector);
         }
 
         return output;
@@ -54,14 +53,15 @@ public class LSA {
             doc = doc.toLowerCase();
 
             ArrayList<String> words = new ArrayList<String>(Arrays.asList(doc.split("\\s")));
-            Iterator<String> iterator = words.iterator();
+            ListIterator<String> iterator = words.listIterator();
 
             while (iterator.hasNext()) {
                 String word = iterator.next();
                 if (stopWords.contains(word)) {
                     iterator.remove();
+                } else {
+                    iterator.set(stemmer.stem(word));
                 }
-                word = stemmer.stem(word);
             }
             result.add(words);
         }
