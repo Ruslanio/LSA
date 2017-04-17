@@ -48,21 +48,9 @@ public class LSA {
     private ArrayList preProcessing(ArrayList<String> documents) {
         ArrayList<List> result = new ArrayList<>();
 
+        Parser parser = new Parser();
         for (String doc : documents) {
-            doc = doc.replaceAll(SYMBOLS, "");
-            doc = doc.toLowerCase();
-
-            ArrayList<String> words = new ArrayList<String>(Arrays.asList(doc.split("\\s")));
-            ListIterator<String> iterator = words.listIterator();
-
-            while (iterator.hasNext()) {
-                String word = iterator.next();
-                if (stopWords.contains(word)) {
-                    iterator.remove();
-                } else {
-                    iterator.set(stemmer.stem(word));
-                }
-            }
+            ArrayList<String> words = (ArrayList<String>) parser.parseToWords(stopWords,doc);
             result.add(words);
         }
 
