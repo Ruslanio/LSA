@@ -1,8 +1,7 @@
 import lsa.LSA;
+import lsa.Parser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Ruslan on 10.03.2017.
@@ -379,15 +378,38 @@ public class MainTest {
 
         HashMap<String,double[]> result = (HashMap<String, double[]>) lsa.doLSA(test);
         Set<String> keySet = result.keySet();
-        double[] currentVector = new double[9];
-        for (String key: keySet){
-            currentVector = result.get(key);
-            System.out.print(key + " : ");
-            for (int i = 0; i < 9; i++){
-                System.out.print(currentVector[i] + " ");
+        Object[] keys = keySet.toArray();
+        ArrayList<String> keysArray = new ArrayList<>();
+        for(int i=0;i<keys.length;i++){
+            keysArray.add((String) keys[i]);
+        }
+        HashMap<double[], String> answers = new HashMap<>();
+        while(true){
+        Scanner scanner = new Scanner(System.in);
+        String question = scanner.nextLine();
+            System.out.println();
+        Parser parser = new Parser();
+        ArrayList<String> parsedQuestion = (ArrayList<String>) parser.parseToWords(stopWords, question);
+        ArrayList<double[]> questionVecs = new ArrayList<>();
+        for(String quest: parsedQuestion){
+            questionVecs.add(result.get(quest));
+        }
+        Answerer answerer = new Answerer();
+        double[] questionOneVec = answerer.getOneVec(questionVecs);
+            LinkedList<String> sortedAns = answerer.getAnswers(answers,questionOneVec);
+            LinkedList<Double> ansVer = answerer.getAnswersVer();
+            for(int i=0;i<sortedAns.size();i++){
+                if (i<5){
+                    System.out.print(sortedAns.get(i));
+                    System.out.println(ansVer.get(i));
+                }
             }
             System.out.println();
-        }
-
+            String answer = scanner.nextLine();
+            if(!answers.containsValue(answer)) {
+                answers.put(questionOneVec, answer);
+            }
+            System.out.println();
     }
+}
 }
