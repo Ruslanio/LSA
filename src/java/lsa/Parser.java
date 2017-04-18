@@ -5,7 +5,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.ru.RussianAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.AttributeSource;
-import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,7 +23,7 @@ public class Parser {
 
     public Parser() {
         stemmer = new Stemmer();
-        analyzer = new RussianAnalyzer(Version.LUCENE_6_5_0);
+        analyzer = new RussianAnalyzer();
     }
 
     @Deprecated
@@ -58,5 +57,9 @@ public class Parser {
         }
         stream.close();
         return result;
+    }
+
+    public void stemmText(String text){
+
     }
 }
