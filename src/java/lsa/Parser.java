@@ -24,7 +24,7 @@ public class Parser {
 
     public Parser() {
         stemmer = new Stemmer();
-        analyzer = new RussianAnalyzer(Version.LUCENE_6_5_0);
+        analyzer = new RussianAnalyzer();
     }
 
     @Deprecated
@@ -57,6 +57,9 @@ public class Parser {
             result.add(term.toString());
         }
         stream.close();
+        for(String lol:result){
+            System.out.println(lol);
+        }
         return result;
     }
 }

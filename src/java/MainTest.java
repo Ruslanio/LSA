@@ -1,6 +1,7 @@
 import lsa.LSA;
 import lsa.Parser;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -9,7 +10,7 @@ import java.util.*;
 public class MainTest {
     private static ArrayList<String> stopWords;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         stopWords = new TxtReader().loadFile("src/res/stop-words.txt");
         if (stopWords == null)
@@ -390,7 +391,7 @@ public class MainTest {
             String question = scanner.nextLine();
             System.out.println();
             Parser parser = new Parser();
-            ArrayList<String> parsedQuestion = (ArrayList<String>) parser.parseToWords(stopWords, question);
+            ArrayList<String> parsedQuestion = (ArrayList<String>) parser.parseToWords(question);
             ArrayList<double[]> questionVecs = new ArrayList<>();
             for (String quest : parsedQuestion) {
                 questionVecs.add(result.get(quest));
