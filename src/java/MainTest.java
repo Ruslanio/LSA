@@ -8,13 +8,14 @@ import java.util.*;
  */
 public class MainTest {
     private static ArrayList<String> stopWords;
+
     public static void main(String[] args) {
 
         stopWords = new TxtReader().loadFile("src/res/stop-words.txt");
         if (stopWords == null)
             System.out.println("null");
 
-        LSA lsa = new LSA(stopWords);
+        LSA lsa = new LSA();
 
 
         ArrayList<String> test = new ArrayList<>();
@@ -133,7 +134,7 @@ public class MainTest {
                 "\n" +
                 "Следует отметить, что онлайн-кредит – это небольшой денежный заем, который зачастую предоставляется на короткий промежуток времени. Процентная ставка по такому кредиту намного выше обычной.\n" +
                 "\n" +
-                "Виды онлайн-кредитов\n"+
+                "Виды онлайн-кредитов\n" +
                 "Онлайн-кредитование допустимо в трех основных видах денежных займов:\n" +
                 "•\tМикрокредит – это финансовая помощь, которая предоставляется банком на короткий промежуток времени под высокий процент. Зачастую такой заем не превышает 50$.\n" +
                 "•\tЭкспресс-кредит – эта форма кредитования используется при работе в интернете. Максимальный размер такого кредита не превышает 1000$.\n" +
@@ -376,40 +377,42 @@ public class MainTest {
                 "Уделить внимание этому сервису стоит и потому, что банки его старательно совершенствуют. Стремясь стать как можно ближе потребителю, они усиленно занимаются вопросами обеспечения безопасности мобильного банкинга и его комфортности. Ведь многие люди не пользуются им из-за сложности интерфейса. Зарубежные банки этот вопрос, похоже, решили – теперь при необходимости можно будет получить консультацию банковского сотрудника онлайн. Причем эта консультация будет в режиме видео. Такие банковские технологии должны будут повысить привлекательность мобильного банкинга. \n" +
                 "");
 
-        HashMap<String,double[]> result = (HashMap<String, double[]>) lsa.doLSA(test);
+        HashMap<String, double[]> result = (HashMap<String, double[]>) lsa.doLSA(test);
         Set<String> keySet = result.keySet();
         Object[] keys = keySet.toArray();
         ArrayList<String> keysArray = new ArrayList<>();
-        for(int i=0;i<keys.length;i++){
+        for (int i = 0; i < keys.length; i++) {
             keysArray.add((String) keys[i]);
         }
         HashMap<double[], String> answers = new HashMap<>();
-        while(true){
-        Scanner scanner = new Scanner(System.in);
-        String question = scanner.nextLine();
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            String question = scanner.nextLine();
             System.out.println();
-        Parser parser = new Parser();
-        ArrayList<String> parsedQuestion = (ArrayList<String>) parser.parseToWords(stopWords, question);
-        ArrayList<double[]> questionVecs = new ArrayList<>();
-        for(String quest: parsedQuestion){
-            questionVecs.add(result.get(quest));
-        }
-        Answerer answerer = new Answerer();
-        double[] questionOneVec = answerer.getOneVec(questionVecs);
-            LinkedList<String> sortedAns = answerer.getAnswers(answers,questionOneVec);
+            Parser parser = new Parser();
+            ArrayList<String> parsedQuestion = (ArrayList<String>) parser.parseToWords(stopWords, question);
+            ArrayList<double[]> questionVecs = new ArrayList<>();
+            for (String quest : parsedQuestion) {
+                questionVecs.add(result.get(quest));
+            }
+            Answerer answerer = new Answerer();
+            double[] questionOneVec = answerer.getOneVec(questionVecs);
+            LinkedList<String> sortedAns = answerer.getAnswers(answers, questionOneVec);
             LinkedList<Double> ansVer = answerer.getAnswersVer();
-            for(int i=0;i<sortedAns.size();i++){
-                if (i<5){
+            for (int i = 0; i < sortedAns.size(); i++) {
+                if (i < 5) {
                     System.out.print(sortedAns.get(i));
                     System.out.println(ansVer.get(i));
                 }
             }
             System.out.println();
             String answer = scanner.nextLine();
-            if(!answers.containsValue(answer)) {
+            if (!answers.containsValue(answer)) {
                 answers.put(questionOneVec, answer);
             }
             System.out.println();
+
+        }
+
     }
-}
 }

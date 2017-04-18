@@ -3,21 +3,14 @@ package lsa;
 import Jama.Matrix;
 import Jama.SingularValueDecomposition;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
  * Created by Ruslan on 10.03.2017.
  */
 public class LSA {
-    private ArrayList<String> stopWords;
     private ArrayList<String> significantWords;
-    private static final String SYMBOLS = "[^а-яА-Яa-zA-Z\\s]";
-    private Stemmer stemmer;
-
-    public LSA(ArrayList stopWords) {
-        stemmer = new Stemmer();
-        this.stopWords = stopWords;
-    }
 
     public Map<String, double[]> doLSA(ArrayList<String> documents) {
 
@@ -50,15 +43,14 @@ public class LSA {
 
         Parser parser = new Parser();
         for (String doc : documents) {
-            ArrayList<String> words = (ArrayList<String>) parser.parseToWords(stopWords,doc);
+            ArrayList<String> words = null;
+            try {
+                words = (ArrayList<String>) parser.parseToWords(doc);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             result.add(words);
         }
-
-//        for (List<String> significantWords : result) {
-//            for (String word : significantWords) {
-//                System.out.println(word);
-//            }
-//        }
         return result;
     }
 
@@ -111,10 +103,7 @@ public class LSA {
             i += 1;
         }
 
-        Matrix resultMatrix = new Matrix(matrixData);
-        resultMatrix.print(n, m);
-
-        return resultMatrix;
+        return new Matrix(matrixData);
     }
 
 }

@@ -1,5 +1,12 @@
 package lsa;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.AttributeSource;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,11 +18,14 @@ import java.util.ListIterator;
 public class Parser {
     private static final String SYMBOLS = "[^а-яА-Яa-zA-Z\\s]";
     private Stemmer stemmer;
+    Analyzer analyzer;
 
     public Parser() {
         stemmer = new Stemmer();
+        analyzer = new RussianAnalyzer();
     }
 
+    @Deprecated
     public List<String> parseToWords(List<String> stopWords, String doc){
         doc = doc.replaceAll(SYMBOLS, "");
         doc = doc.toLowerCase();
@@ -32,5 +42,19 @@ public class Parser {
             }
         }
         return words;
+    }
+
+    public List<String> parseToWords(String doc) throws IOException {
+        List<String> result = new ArrayList<>();
+        TokenStream stream = analyzer.tokenStream("contents", new StringReader(doc));
+        stream.reset();
+        while (true) {
+            if (!stream.incrementToken()) break;
+            AttributeSource token = stream.cloneAttributes();
+            CharTermAttribute term = (CharTermAttribute) token.addAttribute(CharTermAttribute.class);
+            result.add(term.toString());
+        }
+        stream.close();
+        return result;
     }
 }
