@@ -2,8 +2,10 @@ package lsa;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.ru.RussianAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.AttributeSource;
+import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,7 +24,7 @@ public class Parser {
 
     public Parser() {
         stemmer = new Stemmer();
-        analyzer = new RussianAnalyzer();
+        analyzer = new RussianAnalyzer(Version.LUCENE_6_5_0);
     }
 
     @Deprecated
