@@ -46,6 +46,7 @@ public class Parser {
     }
 
     public List<String> parseToWords(String doc) throws IOException {
+        doc = doc.replaceAll(SYMBOLS, "");
         List<String> result = new ArrayList<>();
         TokenStream stream = analyzer.tokenStream("contents", new StringReader(doc));
         stream.reset();
