@@ -1,13 +1,12 @@
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * Created by Ruslan on 26.03.2017.
  */
 public class TxtReader {
+    private static final String DOCS_SEPARATOR = "=-=";
+
     public void saveToFile(Iterable<String> stringArray, String pathName) {
         File file = new File(pathName);
         try {
@@ -28,23 +27,29 @@ public class TxtReader {
     }
 
 
-
     public ArrayList<String> loadFile(String pathName) {
         File f = new File(pathName);
         System.out.println(f.canRead());
         ArrayList<String> output = new ArrayList<String>();
-        try {
-            Scanner scanner = new Scanner(f, "CP1251");
+        StringBuilder stringBuilder = new StringBuilder();
+        int docCount = 0;
 
-            while (scanner.hasNext()) {
-                output.add(scanner.next());
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(DOCS_SEPARATOR)) {
+                    output.add(docCount, stringBuilder.toString());
+                    stringBuilder.delete(0, stringBuilder.length());
+                    docCount++;
+                } else {
+                    if (!line.equals("")) {
+                        stringBuilder.append(line).append(" ");
+                    }
+                }
             }
-
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-
         return output;
     }
 }
