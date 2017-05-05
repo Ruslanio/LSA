@@ -11,6 +11,7 @@ import java.util.Set;
 public class Answerer {
 
     LinkedList<Double> answersVer = new LinkedList<>();
+
     public double[] getOneVec(ArrayList<double[]> vecs){
         double[] resVec = new double[vecs.get(0).length];
         for(int i=0;i<resVec.length;i++){

@@ -11,14 +11,25 @@ import java.util.*;
  */
 public class LSA {
     private ArrayList<String> significantWords;
+    private static final int STANDARD_DIMENSION = -1;
+    private final Parser parser;
 
-    public Map<String, double[]> doLSA(ArrayList<String> documents) {
+    public LSA() {
+        parser = new Parser();
+    }
+
+
+    public Map<String, double[]> doLSA(ArrayList<String> documents, int dimension) throws WrongDimensionException {
 
         ArrayList data = preProcessing(documents);
         Matrix matrix = prepareMatrix(data);
 
         SingularValueDecomposition singularValueDecomposition = new SingularValueDecomposition(matrix);
         Matrix finalVectors = singularValueDecomposition.getU();
+
+        if (dimension != STANDARD_DIMENSION){
+            finalVectors = setCertainDimension(finalVectors,dimension);
+        }
 
         int n = finalVectors.getRowDimension();
         int m = finalVectors.getColumnDimension();
@@ -29,21 +40,22 @@ public class LSA {
         for (int i = 0; i < n; i++) {
             currentWord = significantWords.get(i);
             double[] currentVector = new double[m];
+
             for (int j = 0; j < m; j++) {
                 currentVector[j] = finalVectors.get(i, j);
             }
             output.put(currentWord, currentVector);
         }
-
-
-
         return output;
+    }
+
+    public Map<String, double[]> doLSA(ArrayList<String> documents) throws WrongDimensionException {
+        return doLSA(documents,STANDARD_DIMENSION);
     }
 
     private ArrayList preProcessing(ArrayList<String> documents) {
         ArrayList<List> result = new ArrayList<>();
 
-        Parser parser = new Parser();
         for (String doc : documents) {
             ArrayList<String> words = null;
             try {
@@ -74,14 +86,6 @@ public class LSA {
         }
 
         preparedData.entrySet().removeIf(element -> element.getValue().size() == 1);
-//        "расшифровка" лямбда-выражения выше
-//        Iterator<Map.Entry<String,ArrayList<Integer>>> iterator = preparedData.entrySet().iterator();
-//        while (iterator.hasNext()){
-//            Map.Entry<String,ArrayList<Integer>> element = iterator.next();
-//            if (element.getValue().size() == 1){
-//                iterator.remove();
-//            }
-//        }
 
         int n = preparedData.keySet().size();
         int m = rawData.size();
@@ -106,6 +110,21 @@ public class LSA {
         }
 
         return new Matrix(matrixData);
+    }
+
+    private Matrix setCertainDimension(Matrix matrix,int dimension) throws WrongDimensionException {
+        if (dimension <= 0 || dimension > matrix.getColumnDimension()){
+            throw new WrongDimensionException();
+        }
+        double[][] matrixData = matrix.getArray();
+        double[][] resultMatrixData = new double[matrix.getRowDimension()][dimension];
+
+        for (int i = 0; i < matrix.getRowDimension(); i++){
+            for (int j = 0; j < dimension; j++){
+                resultMatrixData[i][j] = matrixData[i][j];
+            }
+        }
+        return new Matrix(resultMatrixData);
     }
 
 }

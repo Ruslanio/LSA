@@ -1,6 +1,7 @@
 import algorithm.Answerer;
 import lsa.LSA;
 import lsa.Parser;
+import lsa.WrongDimensionException;
 import service.TxtReader;
 
 import java.io.IOException;
@@ -21,7 +22,16 @@ public class MainTest {
         ArrayList<String> test = new TxtReader().loadFile(DOCS_PATH);
 
 
-        HashMap<String, double[]> result = (HashMap<String, double[]>) lsa.doLSA(test);
+        HashMap<String, double[]> result = null;
+
+        //если даешь определенную размерность, обработай исключение, если нет - не парься, оно не вылезет
+        try {
+            result = (HashMap<String, double[]>) lsa.doLSA(test);
+        } catch (WrongDimensionException e) {
+            e.printStackTrace();
+        }
+
+
         Set<String> keySet = result.keySet();
         Object[] keys = keySet.toArray();
         ArrayList<String> keysArray = new ArrayList<>();
