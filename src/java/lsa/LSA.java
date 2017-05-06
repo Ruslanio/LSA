@@ -10,50 +10,63 @@ import java.util.*;
  * Created by Ruslan on 10.03.2017.
  */
 public class LSA {
-    private ArrayList<String> significantWords;
+    private List<String> significantWords;
+    private List<String> documents;
     private static final int STANDARD_DIMENSION = -1;
     private final Parser parser;
+    private HashMap<String, double[]> wordsResultMap;
+    private HashMap<String, double[]> docsResultMap;
 
-    public LSA() {
+    {
+        //initialization block
         parser = new Parser();
     }
 
+    public LSA(List<String> documents) throws WrongDimensionException {
+        this.documents = documents;
+        doLSA(documents);
+    }
 
-    public Map<String, double[]> doLSA(ArrayList<String> documents, int dimension) throws WrongDimensionException {
+    public LSA(List<String> documents, int dimension) throws WrongDimensionException {
+        this.documents = documents;
+        doLSA(documents, dimension);
+    }
+
+
+    public HashMap<String, double[]> getWordsResultMap() {
+        return wordsResultMap;
+    }
+
+    public HashMap<String, double[]> getDocsResultMap() {
+        return docsResultMap;
+    }
+
+
+    public void doLSA(List<String> documents, int dimension) throws WrongDimensionException {
 
         ArrayList data = preProcessing(documents);
         Matrix matrix = prepareMatrix(data);
 
         SingularValueDecomposition singularValueDecomposition = new SingularValueDecomposition(matrix);
-        Matrix finalVectors = singularValueDecomposition.getU();
+        Matrix wordsVectors = singularValueDecomposition.getU();
+        Matrix docsVectors = singularValueDecomposition.getV();
 
-        if (dimension != STANDARD_DIMENSION){
-            finalVectors = setCertainDimension(finalVectors,dimension);
+        if (dimension != STANDARD_DIMENSION) {
+            wordsVectors = setCertainDimension(wordsVectors, dimension, true);
+            docsVectors = setCertainDimension(docsVectors, dimension, false);
         }
 
-        int n = finalVectors.getRowDimension();
-        int m = finalVectors.getColumnDimension();
+        wordsResultMap = matrixToHashMapTransforming(wordsVectors, true);
+        docsResultMap = matrixToHashMapTransforming(docsVectors, false);
 
-        HashMap<String, double[]> output = new HashMap<>();
-        String currentWord;
 
-        for (int i = 0; i < n; i++) {
-            currentWord = significantWords.get(i);
-            double[] currentVector = new double[m];
-
-            for (int j = 0; j < m; j++) {
-                currentVector[j] = finalVectors.get(i, j);
-            }
-            output.put(currentWord, currentVector);
-        }
-        return output;
     }
 
-    public Map<String, double[]> doLSA(ArrayList<String> documents) throws WrongDimensionException {
-        return doLSA(documents,STANDARD_DIMENSION);
+    public void doLSA(List<String> documents) throws WrongDimensionException {
+        doLSA(documents, STANDARD_DIMENSION);
     }
 
-    private ArrayList preProcessing(ArrayList<String> documents) {
+    private ArrayList preProcessing(List<String> documents) {
         ArrayList<List> result = new ArrayList<>();
 
         for (String doc : documents) {
@@ -112,19 +125,67 @@ public class LSA {
         return new Matrix(matrixData);
     }
 
-    private Matrix setCertainDimension(Matrix matrix,int dimension) throws WrongDimensionException {
-        if (dimension <= 0 || dimension > matrix.getColumnDimension()){
+    private Matrix setCertainDimension(Matrix matrix, int dimension, boolean isWords) throws WrongDimensionException {
+        if (dimension <= 0 || dimension > matrix.getColumnDimension()) {
             throw new WrongDimensionException();
         }
-        double[][] matrixData = matrix.getArray();
-        double[][] resultMatrixData = new double[matrix.getRowDimension()][dimension];
 
-        for (int i = 0; i < matrix.getRowDimension(); i++){
-            for (int j = 0; j < dimension; j++){
-                resultMatrixData[i][j] = matrixData[i][j];
+        double[][] matrixData = matrix.getArray();
+        double[][] resultMatrixData;
+        int n;
+
+        if (isWords) {
+            n = matrix.getRowDimension();
+            resultMatrixData = new double[n][dimension];
+        } else {
+            n = matrix.getColumnDimension();
+            resultMatrixData = new double[n][dimension];
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < dimension; j++) {
+                if (isWords) {
+                    resultMatrixData[i][j] = matrixData[i][j];
+                } else {
+                    resultMatrixData[j][i] = matrixData[j][i];
+                }
             }
         }
         return new Matrix(resultMatrixData);
+    }
+
+    private HashMap<String, double[]> matrixToHashMapTransforming(Matrix matrix, boolean isWords) {
+        HashMap<String, double[]> result = new HashMap<>();
+        int n;
+        int m;
+        ArrayList<String> keys;
+        if (isWords) {
+            n = matrix.getRowDimension();
+            m = matrix.getColumnDimension();
+            keys = (ArrayList<String>) significantWords;
+        } else {
+            n = matrix.getColumnDimension();
+            m = matrix.getRowDimension();
+            keys = (ArrayList<String>) documents;
+        }
+
+        String currentWord;
+
+        for (int i = 0; i < n; i++) {
+            currentWord = keys.get(i);
+            double[] currentVector = new double[m];
+
+            for (int j = 0; j < m; j++) {
+                if (isWords) {
+                    currentVector[j] = matrix.get(i, j);
+                } else {
+                    currentVector[j] = matrix.get(j, i);
+                }
+            }
+            result.put(currentWord, currentVector);
+        }
+
+        return result;
     }
 
 }

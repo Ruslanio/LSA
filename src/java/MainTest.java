@@ -17,16 +17,18 @@ public class MainTest {
 
     public static void main(String[] args) {
 
-        LSA lsa = new LSA();
+
 
         ArrayList<String> test = new TxtReader().loadFile(DOCS_PATH);
 
 
-        HashMap<String, double[]> result = null;
-
         //если даешь определенную размерность, обработай исключение, если нет - не парься, оно не вылезет
+        HashMap<String,double[]> result = null;
         try {
-            result = (HashMap<String, double[]>) lsa.doLSA(test);
+            // сам ЛСА теперь отрабатывет при создании класса, при фикс. размерности задай ее вторым аргументом
+            // ".getWordsResultMap();" вернет тебе мапу слов, а ".getDocsResultMap();" мапу документов
+            LSA lsa = new LSA(test);
+            result = lsa.getWordsResultMap();
         } catch (WrongDimensionException e) {
             e.printStackTrace();
         }
