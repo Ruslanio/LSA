@@ -12,7 +12,7 @@ import java.util.*;
 public class LSA {
     private List<String> significantWords;
     private List<String> documents;
-    private static final int STANDARD_DIMENSION = -1;
+    private static final int STANDARD_DIMENSION = 0;
     private final Parser parser;
     private HashMap<String, double[]> wordsResultMap;
     private HashMap<String, double[]> docsResultMap;
@@ -52,8 +52,8 @@ public class LSA {
         Matrix docsVectors = singularValueDecomposition.getV();
 
         if (dimension != STANDARD_DIMENSION) {
-            wordsVectors = setCertainDimension(wordsVectors, dimension, true);
-            docsVectors = setCertainDimension(docsVectors, dimension, false);
+            wordsVectors = setCertainDimension(wordsVectors, dimension);
+            docsVectors = setCertainDimension(docsVectors, dimension);
         }
 
         wordsResultMap = matrixToHashMapTransforming(wordsVectors, true);
@@ -125,30 +125,18 @@ public class LSA {
         return new Matrix(matrixData);
     }
 
-    private Matrix setCertainDimension(Matrix matrix, int dimension, boolean isWords) throws WrongDimensionException {
+    private Matrix setCertainDimension(Matrix matrix, int dimension) throws WrongDimensionException {
         if (dimension <= 0 || dimension > matrix.getColumnDimension()) {
             throw new WrongDimensionException();
         }
 
         double[][] matrixData = matrix.getArray();
-        double[][] resultMatrixData;
-        int n;
-
-        if (isWords) {
-            n = matrix.getRowDimension();
-            resultMatrixData = new double[n][dimension];
-        } else {
-            n = matrix.getColumnDimension();
-            resultMatrixData = new double[n][dimension];
-        }
+        int n = matrix.getRowDimension();
+        double[][] resultMatrixData = new double[n][dimension];
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < dimension; j++) {
-                if (isWords) {
                     resultMatrixData[i][j] = matrixData[i][j];
-                } else {
-                    resultMatrixData[j][i] = matrixData[j][i];
-                }
             }
         }
         return new Matrix(resultMatrixData);
@@ -156,16 +144,12 @@ public class LSA {
 
     private HashMap<String, double[]> matrixToHashMapTransforming(Matrix matrix, boolean isWords) {
         HashMap<String, double[]> result = new HashMap<>();
-        int n;
-        int m;
+        int n = matrix.getRowDimension();
+        int m = matrix.getColumnDimension();
         ArrayList<String> keys;
         if (isWords) {
-            n = matrix.getRowDimension();
-            m = matrix.getColumnDimension();
             keys = (ArrayList<String>) significantWords;
         } else {
-            n = matrix.getColumnDimension();
-            m = matrix.getRowDimension();
             keys = (ArrayList<String>) documents;
         }
 
@@ -176,11 +160,7 @@ public class LSA {
             double[] currentVector = new double[m];
 
             for (int j = 0; j < m; j++) {
-                if (isWords) {
-                    currentVector[j] = matrix.get(i, j);
-                } else {
-                    currentVector[j] = matrix.get(j, i);
-                }
+                currentVector[j] = matrix.get(i, j);
             }
             result.put(currentWord, currentVector);
         }
