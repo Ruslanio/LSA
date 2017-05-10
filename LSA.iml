@@ -15,5 +15,6 @@
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queryparser:6.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:6.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-sandbox:6.5.0" level="project" />
+    <orderEntry type="library" name="Maven: gov.nist.math:jama:1.0.3" level="project" />
   </component>
 </module>
