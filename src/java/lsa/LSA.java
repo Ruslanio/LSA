@@ -44,7 +44,7 @@ public class LSA {
 
     public void doLSA(List<String> documents, int dimension) throws WrongDimensionException {
 
-        ArrayList data = preProcessing(documents);
+        List data = preProcessing(documents);
         Matrix matrix = prepareMatrix(data);
 
         SingularValueDecomposition singularValueDecomposition = new SingularValueDecomposition(matrix);
@@ -66,7 +66,7 @@ public class LSA {
         doLSA(documents, STANDARD_DIMENSION);
     }
 
-    private ArrayList preProcessing(List<String> documents) {
+    private List preProcessing(List<String> documents) {
         ArrayList<List> result = new ArrayList<>();
 
         for (String doc : documents) {
@@ -81,11 +81,11 @@ public class LSA {
         return result;
     }
 
-    private Matrix prepareMatrix(ArrayList<List> rawData) {
+    private Matrix prepareMatrix(List<List<String>> parsedDocs) {
 
-        HashMap<String, ArrayList<Integer>> preparedData = new HashMap<>();
+        HashMap<String, List<Integer>> preparedData = new HashMap<>();
         int docCount = 0;
-        for (List<String> list : rawData) {
+        for (List<String> list : parsedDocs) {
             for (String wordString : list) {
                 if (preparedData.containsKey(wordString)) {
                     preparedData.get(wordString).add(docCount);
@@ -101,22 +101,25 @@ public class LSA {
         preparedData.entrySet().removeIf(element -> element.getValue().size() == 1);
 
         int n = preparedData.keySet().size();
-        int m = rawData.size();
+        int m = parsedDocs.size();
         double[][] matrixData = new double[n][m];
 
         Set<String> keySet = preparedData.keySet();
         int i = 0;
-        ArrayList<Integer> currentValue;
+        ArrayList<Integer> currentValues;
         significantWords = new ArrayList<>();
 
         for (String key : keySet) {
             significantWords.add(key);
-            currentValue = preparedData.get(key);
+            currentValues = (ArrayList<Integer>) preparedData.get(key);
             for (int j = 0; j < m; j++) {
-                if (currentValue.contains(j)) {
-                    matrixData[i][j] = 1;
-                } else {
-                    matrixData[i][j] = 0;
+//                if (currentValues.contains(j)) {
+//                    matrixData[i][j] = 1;
+//                } else {
+//                    matrixData[i][j] = 0;
+//                }
+                if (currentValues.contains(j)){
+                    matrixData[i][j] = matrixData[i][j] + 1;
                 }
             }
             i += 1;

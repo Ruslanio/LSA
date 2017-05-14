@@ -15,7 +15,7 @@ public class TimeTest {
         ArrayList docs = reader.loadFile(DOCS_PATH);
         System.out.println("size = " + docs.size());
         long result = 0;
-        int tries = 10;
+        int tries = 1;
         for (int i = 0;i < tries; i++){
             long start = System.currentTimeMillis();
             LSA lsa = new LSA(docs);
